@@ -10,6 +10,9 @@ jobs:
         image: ibrahimoladepo/stm32f401xx-gcc-10.3
         options: --user root
 
+    env:
+        GCC_PATH: /home/lintu/dev/gcc-arm-none-eabi-10.3-2021.10/bin
+
     steps:
     - uses: actions/checkout@v3
     - run: GCC_PATH=/home/lintu/dev/gcc-arm-none-eabi-10.3-2021.10/bin
