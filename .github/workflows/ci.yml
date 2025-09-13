@@ -13,4 +13,4 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: make
-      run: make
+      run: make GCC_PATH=~/dev/gcc-arm-none-eabi-10.3-2021.10/bin
