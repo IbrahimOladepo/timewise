@@ -41,6 +41,7 @@ ASMMC_SOURCE =
 #######################################
 # binaries
 #######################################
+GCC_PATH = /home/ibrahim/dev/gcc-arm-none-eabi-10.3-2021.10/bin
 PREFIX = arm-none-eabi-
 # The gcc compiler bin path can be either defined in make command via GCC_PATH variable (> make GCC_PATH=xxx)
 # either it can be added to the PATH environment variable.
