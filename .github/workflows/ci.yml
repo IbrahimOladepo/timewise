@@ -8,8 +8,9 @@ jobs:
     runs-on: ubuntu-latest
     container:
         image: ibrahimoladepo/stm32f401xx-gcc-10.3
+        options: --user root
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v3
     - name: make
       run: make
