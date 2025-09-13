@@ -95,7 +95,9 @@ C_INCLUDES = \
 			-Isrc/drivers 	\
 			-Isrc/common	\
 			-Isrc/test		\
-			-Isrc/app
+			-Isrc/app		\
+			-Isrc/drivers/CMSIS/Include	\
+			-Isrc/drivers/CMSIS/Device/ST/STM32F4xx/Include
 
 
 # compile gcc flags
@@ -107,6 +109,8 @@ ifeq ($(DEBUG), 1)
 CFLAGS += -g -gdwarf-2
 endif
 
+# IB: Diable errors for unused variables
+CFLAGS += -Wno-unused-variable
 
 # Generate dependency information
 CFLAGS += -MMD -MP -MF"$(@:%.o=%.d)"
