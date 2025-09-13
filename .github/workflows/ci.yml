@@ -1,0 +1,15 @@
+name: C/C++ CI
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    container:
+        image: ibrahimoladepo/stm32f401xx-gcc-10.3
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: make
+      run: make
