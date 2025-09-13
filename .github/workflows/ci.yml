@@ -14,4 +14,4 @@ jobs:
     - uses: actions/checkout@v3
     - run: GCC_PATH=/home/lintu/dev/gcc-arm-none-eabi-10.3-2021.10/bin
     - name: make
-      run: make
+      run: make GCC_PATH=$GCC_PATH
