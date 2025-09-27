@@ -3,6 +3,14 @@
 ######################################
 TARGET = timewise
 
+ifneq ($(TEST),) # TEST argument
+ifeq ($(findstring test_,$(TEST)),)
+$(error "TEST=$(TEST) is invalid (test function must start with test_)")
+else
+TARGET=$(TEST)
+endif
+endif
+
 
 ######################################
 # building variables
@@ -22,9 +30,17 @@ BUILD_DIR = build
 ######################################
 # source
 ######################################
+# Main file definition
+ifndef TEST
+MAIN_FILE = src/main.c
+else
+MAIN_FILE = src/test/test.c
+endif
+
 # C sources
 C_SOURCES =	\
-			src/main.c \
+			$(MAIN_FILE) \
+			src/drivers/gpio.c \
 			src/sysmem.c \
 			src/syscalls.c  
 
@@ -79,7 +95,9 @@ MCU = $(CPU) -mthumb $(FPU) $(FLOAT-ABI)
 AS_DEFS = 
 
 # C defines
+TEST_DEFINE = $(addprefix -DTEST=,$(TEST))
 C_DEFS = \
+		$(TEST_DEFINE) \
 		-DUSE_HAL_DRIVER \
 		-DSTM32F401xE
 
