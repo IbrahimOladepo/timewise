@@ -8625,6 +8625,16 @@ typedef struct
 #define FLASH_SCALE3_LATENCY1_FREQ    30000000U     /*!< HCLK frequency to set FLASH latency 1 in power scale 3  */
 #define FLASH_SCALE3_LATENCY2_FREQ    60000000U     /*!< HCLK frequency to set FLASH latency 2 in power scale 3  */
 
+// Generic macros
+#define ENABLE			    1
+#define	DISABLE			    0
+#define SET				      ENABLE
+#define RESET			      DISABLE
+#define GPIO_PIN_SET	  SET
+#define GPIO_PIN_RESET	RESET
+#define FLAG_RESET		  RESET
+#define FLAG_SET		    SET
+
 
 /**
   * @}
