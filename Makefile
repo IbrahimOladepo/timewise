@@ -18,7 +18,7 @@ endif
 # debug build?
 DEBUG = 1
 # optimization
-OPT = -Og
+OPT = -O0
 
 
 #######################################
@@ -190,6 +190,9 @@ $(BUILD_DIR):
 #######################################
 clean:
 	-rm -fR $(BUILD_DIR)
+
+flash: $(BUILD_DIR)/$(TARGET).bin
+	st-flash --reset write $(BUILD_DIR)/$(TARGET).bin 0x08000000
   
 #######################################
 # dependencies
