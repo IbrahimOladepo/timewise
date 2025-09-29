@@ -1,0 +1,42 @@
+// Original code from:
+// https://github.com/prtzl/Embedded_videos/blob/master/045_BUILDING-PT4/test-f407vg/.vscode/launch.json
+
+{
+    "version": "0.1",
+    "projectName": "timewise",
+    "configurations": [
+        {
+            "name": "STlink launch",
+            "cwd": "${workspaceRoot}",
+            "executable": "${workspaceRoot}/build/timewise.elf",
+            "request": "launch",
+            "type": "cortex-debug",
+            "servertype": "stutil",
+            "device": "STM32F401RE",
+            "interface": "swd",
+            "runToEntryPoint": "main", // else it starts at reset handler - not interested
+            "preLaunchTask": "Build all", // configured in tasks.json
+            // "preLaunchCommands": ["Build all"], // you can execute command instead of task
+            "svdFile": "/home/ibrahim/st/cube_programmer/SVD/STM32F401.svd", // Include svd to watch device peripherals
+            "swoConfig": {},
+            "showDevDebugOutput": "raw"
+        },
+        
+        {
+            "name": "STlink attach",
+            "cwd": "${workspaceRoot}",
+            "executable": "${workspaceRoot}/build/timewise.elf",
+            "request": "attach",
+            "type": "cortex-debug",
+            "servertype": "stutil",
+            "device": "STM32F401RE",
+            "interface": "swd",
+            "runToEntryPoint": "main", // else it starts at reset handler - not interested
+            "preLaunchTask": "Build all", // configured in tasks.json
+            // "preLaunchCommands": ["Build all"], // you can execute command instead of task
+            "svdFile": "", // Include svd to watch device peripherals
+            "swoConfig": {},
+            "showDevDebugOutput": "raw"
+        },
+    ]
+}
