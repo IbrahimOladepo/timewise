@@ -1,4 +1,8 @@
 {
+    "cortex-debug.armToolchainPath": "/usr/share/gcc-arm-none-eabi-10.3-2021.10/bin",
+    "cortex-debug.gdbPath": "/usr/bin/arm-none-eabi-gdb",
+    "cortex-debug.stutilPath": "/usr/bin/st-util",
+    
     "files.associations": {
         "stm32f401xe.h": "c"
     }
