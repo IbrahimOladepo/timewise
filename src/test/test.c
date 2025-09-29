@@ -39,9 +39,30 @@ void test_GPIO_LEDToggle(void){
 }
 
 
+void test_GPIO_LEDOnOff(void){
+    GPIO_LEDPinInit();
+
+    while(1){
+        // GPIO_WriteToOutputPin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
+        // delay();
+
+        GPIO_WriteToOutputPin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
+        delay();
+
+        // GPIO_WriteToOutputPin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
+        // delay();
+
+        // GPIO_WriteToOutputPin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
+        // delay();
+    }
+}
+
+
 int main(void){
 
     TEST();
+
+    return 0;
 
 }
 

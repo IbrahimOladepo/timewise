@@ -110,8 +110,8 @@ void GPIO_ConfigPinPullMode(GPIO_Handler_t *pGPIOHandle){
  */
 void GPIO_ConfigOutputType(GPIO_Handler_t *pGPIOHandle){
     // CLEAR first, then SET
-    pGPIOHandle->pGPIOx->OTYPER &= ~(0b11 << (pGPIOHandle->GPIO_PinConfig.GPIO_PinNumber * 2));
-    pGPIOHandle->pGPIOx->OTYPER |= (pGPIOHandle->GPIO_PinConfig.GPIO_PinOPType << (pGPIOHandle->GPIO_PinConfig.GPIO_PinNumber * 2));
+    pGPIOHandle->pGPIOx->OTYPER &= ~(0b11 << (pGPIOHandle->GPIO_PinConfig.GPIO_PinNumber));
+    pGPIOHandle->pGPIOx->OTYPER |= (pGPIOHandle->GPIO_PinConfig.GPIO_PinOPType << (pGPIOHandle->GPIO_PinConfig.GPIO_PinNumber));
 }
 
 
@@ -125,12 +125,12 @@ void GPIO_ConfigAlternateFunction(GPIO_Handler_t *pGPIOHandle){
     if (pGPIOHandle->GPIO_PinConfig.GPIO_PinNumber < 8){
         // CLEAR first, then SET for GPIO_AFRL register
         pGPIOHandle->pGPIOx->AFR[0] &= ~(0b1111 << (pGPIOHandle->GPIO_PinConfig.GPIO_PinNumber * 4));
-        pGPIOHandle->pGPIOx->AFR[0] |= ~(pGPIOHandle->GPIO_PinConfig.GPIO_PinAltFunMode << (pGPIOHandle->GPIO_PinConfig.GPIO_PinNumber * 4));
+        pGPIOHandle->pGPIOx->AFR[0] |= (pGPIOHandle->GPIO_PinConfig.GPIO_PinAltFunMode << (pGPIOHandle->GPIO_PinConfig.GPIO_PinNumber * 4));
     }
     else if (pGPIOHandle->GPIO_PinConfig.GPIO_PinNumber < 16){
         // CLEAR first, then SET for GPIO_AFRH register
         pGPIOHandle->pGPIOx->AFR[1] &= ~(0b1111 << ((pGPIOHandle->GPIO_PinConfig.GPIO_PinNumber - 8) * 4));
-        pGPIOHandle->pGPIOx->AFR[1] |= ~(pGPIOHandle->GPIO_PinConfig.GPIO_PinAltFunMode << ((pGPIOHandle->GPIO_PinConfig.GPIO_PinNumber - 8) * 4));
+        pGPIOHandle->pGPIOx->AFR[1] |= (pGPIOHandle->GPIO_PinConfig.GPIO_PinAltFunMode << ((pGPIOHandle->GPIO_PinConfig.GPIO_PinNumber - 8) * 4));
     }
 }
 
@@ -157,7 +157,9 @@ void GPIO_Init(GPIO_Handler_t *pGPIOHandle){
     GPIO_ConfigOutputType(pGPIOHandle);
 
     // 6. Configure GPIO alternate function
-    GPIO_ConfigAlternateFunction(pGPIOHandle);    
+    if (pGPIOHandle->GPIO_PinConfig.GPIO_PinMode == GPIO_MODE_ALTFN){
+        GPIO_ConfigAlternateFunction(pGPIOHandle);
+    }    
 }
 
 
