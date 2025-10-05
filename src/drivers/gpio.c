@@ -6,6 +6,7 @@
  */
 
 #include "gpio.h"
+#include "core_cm4.h"
 
 
 /*********************************************************************
@@ -102,6 +103,7 @@ void GPIO_ConfigPinMode(GPIO_Handler_t *pGPIOHandle){
         RCC->APB2ENR |= RCC_APB2ENR_SYSCFGEN;
 
         // Configure the GPIO port selection in SYSCFG_EXTICR
+        // Selects which GPIO port (A, B, C, etc.) is connected to a specific EXTI line (0-15)
         uint8_t temp_ICRReg = pGPIOHandle->GPIO_PinConfig.GPIO_PinNumber / 4;
         uint8_t temp_ICRPortOffset = pGPIOHandle->GPIO_PinConfig.GPIO_PinNumber % 4;
         uint8_t temp_ICRPortCode = GPIO_BASEADDR_TO_CODE(pGPIOHandle->pGPIOx);
@@ -305,4 +307,33 @@ void GPIO_WriteToOutputPort(GPIO_TypeDef *pGPIOx, uint16_t value){
  */
 void GPIO_ToggleOutputPin(GPIO_TypeDef *pGPIOx, uint8_t pinNumber){
     pGPIOx->ODR ^= (1 << pinNumber);
+}
+
+
+/*********************************************************************
+ * @fn      		  - GPIO_IRQConfigs
+ * @brief             - configures GPIO interrupt function and priority on the CPU side
+ * @param[in]         - interrupt request number
+ * @param[in]         - Enable or disable mode
+ */
+void GPIO_IRQConfigs(IRQn_Type IRQNumber, uint32_t IRQPriority, uint8_t EnorDi){
+    if (EnorDi == ENABLE){
+        __NVIC_SetPriority(IRQNumber, IRQPriority);
+        __NVIC_EnableIRQ(IRQNumber);
+    }
+    else{
+        __NVIC_DisableIRQ(IRQNumber);
+    }
+}
+
+
+/*********************************************************************
+ * @fn      		  - GPIO_IRQHandling
+ * @brief             - clears EXTI PR (pending register) bit to avoid retriggering of interrupt
+ * @param[in]         - GPIO pin number
+ */
+void GPIO_IRQHandling(GPIO_Pin_Number_t pinNumber){
+    if (EXTI->PR & (1 << pinNumber)){
+        EXTI->PR |= (1 << pinNumber);
+    }
 }
