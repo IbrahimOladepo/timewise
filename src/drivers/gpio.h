@@ -12,6 +12,14 @@
 #include <stdint.h>
 
 
+#define GPIO_BASEADDR_TO_CODE(x)	( (x == GPIOA) ? 0 :    \
+									  (x == GPIOB) ? 1 :    \
+		  	  	  	  	  	  	  	  (x == GPIOC) ? 2 :    \
+		  	  	  	  	  	  	  	  (x == GPIOD) ? 3 :    \
+		  	  	  	  	  	  	  	  (x == GPIOE) ? 4 :    \
+		  	  	  	  	  	  	      (x == GPIOH) ? 7 : 0)
+
+
 /*
  *  @GPIO_PIN_NUMBERS
  *	GPIO pin possible numbers (macros)

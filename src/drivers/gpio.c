@@ -70,9 +70,47 @@ void GPIO_PeriClockControl(GPIO_TypeDef *pGPIOx, uint8_t EnorDi){
  * @return            - None
  */
 void GPIO_ConfigPinMode(GPIO_Handler_t *pGPIOHandle){
-    // CLEAR first, then SET
-    pGPIOHandle->pGPIOx->MODER &= ~(0b11 << (pGPIOHandle->GPIO_PinConfig.GPIO_PinNumber * 2));
-    pGPIOHandle->pGPIOx->MODER |= (pGPIOHandle->GPIO_PinConfig.GPIO_PinMode << (pGPIOHandle->GPIO_PinConfig.GPIO_PinNumber * 2));
+    if (pGPIOHandle->GPIO_PinConfig.GPIO_PinMode <= GPIO_MODE_ANALOG){
+        // Non-interrupt mode
+        // CLEAR first, then SET
+        pGPIOHandle->pGPIOx->MODER &= ~(0b11 << (pGPIOHandle->GPIO_PinConfig.GPIO_PinNumber * 2));
+        pGPIOHandle->pGPIOx->MODER |= (pGPIOHandle->GPIO_PinConfig.GPIO_PinMode << (pGPIOHandle->GPIO_PinConfig.GPIO_PinNumber * 2));
+    }
+    else{
+        // Configure pin as input
+        pGPIOHandle->pGPIOx->MODER &= ~(0b11 << (pGPIOHandle->GPIO_PinConfig.GPIO_PinNumber * 2));
+        pGPIOHandle->pGPIOx->MODER |= (GPIO_MODE_IN << (pGPIOHandle->GPIO_PinConfig.GPIO_PinNumber * 2));
+
+        // Interrupt mode
+        if (pGPIOHandle->GPIO_PinConfig.GPIO_PinMode == GPIO_MODE_IT_FT){
+            // Falling trigger
+            EXTI->FTSR |= (1 << pGPIOHandle->GPIO_PinConfig.GPIO_PinNumber);
+            EXTI->RTSR &= ~(1 << pGPIOHandle->GPIO_PinConfig.GPIO_PinNumber);
+        }
+        else if (pGPIOHandle->GPIO_PinConfig.GPIO_PinMode == GPIO_MODE_IT_RT){
+            // Rising trigger
+            EXTI->RTSR |= (1 << pGPIOHandle->GPIO_PinConfig.GPIO_PinNumber);
+            EXTI->FTSR &= ~(1 << pGPIOHandle->GPIO_PinConfig.GPIO_PinNumber);
+        }
+        else if (pGPIOHandle->GPIO_PinConfig.GPIO_PinMode == GPIO_MODE_IT_RFT){
+            // Falling or rising trigger
+            EXTI->RTSR |= (1 << pGPIOHandle->GPIO_PinConfig.GPIO_PinNumber);
+            EXTI->FTSR |= (1 << pGPIOHandle->GPIO_PinConfig.GPIO_PinNumber);
+        }
+
+        // Enable the APB2 Bus clock where is where SYSCFG is connected to
+        RCC->APB2ENR |= RCC_APB2ENR_SYSCFGEN;
+
+        // Configure the GPIO port selection in SYSCFG_EXTICR
+        uint8_t temp_ICRReg = pGPIOHandle->GPIO_PinConfig.GPIO_PinNumber / 4;
+        uint8_t temp_ICRPortOffset = pGPIOHandle->GPIO_PinConfig.GPIO_PinNumber % 4;
+        uint8_t temp_ICRPortCode = GPIO_BASEADDR_TO_CODE(pGPIOHandle->pGPIOx);
+
+        SYSCFG->EXTICR[temp_ICRReg] = temp_ICRPortCode << (temp_ICRPortOffset * 4);
+
+        // Enable the EXTI delivery using the IMR register
+        EXTI->IMR |= (1 << pGPIOHandle->GPIO_PinConfig.GPIO_PinNumber);
+    }
 }
 
 
