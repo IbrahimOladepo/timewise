@@ -4,6 +4,7 @@
     "cortex-debug.stutilPath": "/usr/bin/st-util",
     
     "files.associations": {
-        "stm32f401xe.h": "c"
+        "stm32f401xe.h": "c",
+        "mcu_init.h": "c"
     }
 }

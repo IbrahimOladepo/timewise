@@ -6,6 +6,7 @@
  */
 
 #include "stm32f401xe.h"
+#include "mcu_init.h"
 #include "gpio.h"
 
 
@@ -44,7 +45,25 @@ void GPIO_BtnPinInit(void){
 }
 
 
+void GPIO_MCO1Init(void){
+    // MCU pin connected to PLL
+    GPIO_Handler_t GPIOMCO;
+
+	GPIOMCO.pGPIOx = GPIOA;
+    
+	GPIOMCO.GPIO_PinConfig.GPIO_PinNumber = GPIO_PIN_8;
+	GPIOMCO.GPIO_PinConfig.GPIO_PinMode = GPIO_MODE_ALTFN;
+	GPIOMCO.GPIO_PinConfig.GPIO_PinOPType = GPIO_OP_TYPE_PP;
+	GPIOMCO.GPIO_PinConfig.GPIO_PinPuPdControl = GPIO_PU; // GPIO_NO_PUPD
+	GPIOMCO.GPIO_PinConfig.GPIO_PinAltFunMode = GPIO_AF_0; // GPIO_AF_0
+
+	// Initialize GPIO(s)
+	GPIO_Init(&GPIOMCO);
+}
+
+
 void GPIO_MCO2Init(void){
+    // MCU pin connected to HSI
     GPIO_Handler_t GPIOMCO;
 
 	GPIOMCO.pGPIOx = GPIOC;
@@ -100,6 +119,16 @@ void test_GPIO_Interrupt(void){
         // Do nothing; wait for interrupt
     }
     
+}
+
+
+void test_System_Clock_Config(void){
+    MCU_Init();
+
+    GPIO_MCO1Init();
+    GPIO_MCO2Init();
+
+    test_GPIO_LEDOnOff();
 }
 
 
