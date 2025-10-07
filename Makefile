@@ -41,6 +41,7 @@ endif
 C_SOURCES =	\
 			$(MAIN_FILE) \
 			src/drivers/gpio.c \
+			src/drivers/mcu_init.c \
 			src/sysmem.c \
 			src/syscalls.c  
 
