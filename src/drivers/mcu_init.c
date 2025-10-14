@@ -54,10 +54,10 @@ void MCU_InitSystemClock(void){
     // AHB Prescaler: No division (HPRE = 0)
     RCC->CFGR &= ~(RCC_CFGR_HPRE);
 
-    // APB1 Prescaler: /2 (PCLK1 max 42MHz)
+    // APB1 Prescaler: /2 for 42MHz (PCLK1 max 42MHz)
     RCC->CFGR |= RCC_CFGR_PPRE1_DIV2;
     
-    // APB2 Prescaler: /2 (PCLK2 max 84MHz)
+    // APB2 Prescaler: /2 for 42MHz (PCLK2 max 84MHz)
     RCC->CFGR |= RCC_CFGR_PPRE2_DIV2;
 
     // EXTRA: Configure MCO1 to output PLL clock

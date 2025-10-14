@@ -42,6 +42,7 @@ C_SOURCES =	\
 			$(MAIN_FILE) \
 			src/drivers/gpio.c \
 			src/drivers/mcu_init.c \
+			src/drivers/usart.c \
 			src/sysmem.c \
 			src/syscalls.c  
 
