@@ -8,6 +8,7 @@
 #include "stm32f401xe.h"
 #include "mcu_init.h"
 #include "gpio.h"
+#include "usart.h"
 
 
 void delay(void){
@@ -79,6 +80,39 @@ void GPIO_MCO2Init(void){
 }
 
 
+void USART1_Init(void){
+    // Initialize GPIO
+    GPIO_Handler_t GPIOUSART;
+	GPIOUSART.pGPIOx = GPIOB;
+	GPIOUSART.GPIO_PinConfig.GPIO_PinMode = GPIO_MODE_ALTFN;
+	GPIOUSART.GPIO_PinConfig.GPIO_PinOPType = GPIO_OP_TYPE_PP;
+	GPIOUSART.GPIO_PinConfig.GPIO_PinPuPdControl = GPIO_NO_PUPD;
+	GPIOUSART.GPIO_PinConfig.GPIO_PinAltFunMode = GPIO_AF_7;
+
+	// USART Tx
+    GPIOUSART.GPIO_PinConfig.GPIO_PinNumber = GPIO_PIN_6;
+	GPIO_Init(&GPIOUSART);
+
+    // USART Rx
+    GPIOUSART.GPIO_PinConfig.GPIO_PinNumber = GPIO_PIN_7;
+	GPIO_Init(&GPIOUSART);
+
+    // Initialize USART1 Peripheral
+    USART_Handler_t USARTOne;
+    USARTOne.pUSARTx = USART1;
+    USARTOne.USART_PinConfig.USART_OverMode = USART_OVER16;
+    USARTOne.USART_PinConfig.USART_CPHA = USART_CLK_CAPON_SECOND;
+    USARTOne.USART_PinConfig.USART_CPOL = USART_CLK_ACTIVE_LOW;
+    USARTOne.USART_PinConfig.USART_ParityCtrl = USART_PARITY_DISABLED;
+    USARTOne.USART_PinConfig.USART_Baudrate = USART_BAUD_115200;
+    USARTOne.USART_PinConfig.USART_TxRx_Mode = USART_MODE_TXRX;
+    USART_Init(&USARTOne);
+
+    // Activate USART1 peripheral
+    USART_PeriCtrl(USART1, ENABLE);
+}
+
+
 void test_GPIO_LEDToggle(void){
 	GPIO_LEDPinInit();
 
@@ -129,6 +163,34 @@ void test_System_Clock_Config(void){
     GPIO_MCO2Init();
 
     test_GPIO_LEDOnOff();
+}
+
+
+void test_USART_Tx(void){
+    MCU_Init();
+    GPIO_MCO1Init();
+    GPIO_MCO2Init();
+    GPIO_LEDPinInit();
+    USART1_Init();
+    
+
+    while (1){
+        USART_WriteChar_Polling(USART1, 'i');
+        USART_WriteChar_Polling(USART1, 'b');
+        USART_WriteChar_Polling(USART1, 't');
+        USART_WriteChar_Polling(USART1, 'e');
+        USART_WriteChar_Polling(USART1, 'c');
+        USART_WriteChar_Polling(USART1, 'h');
+        USART_WriteChar_Polling(USART1, '\n');
+        delay();
+        delay();
+
+        GPIO_WriteToOutputPin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
+        delay();
+
+        GPIO_WriteToOutputPin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
+        delay();
+    }
 }
 
 
