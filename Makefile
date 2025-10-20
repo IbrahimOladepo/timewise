@@ -39,11 +39,12 @@ endif
 
 # C sources
 C_SOURCES =	\
-			$(MAIN_FILE) \
-			src/drivers/gpio.c \
-			src/drivers/mcu_init.c \
-			src/drivers/usart.c \
-			src/sysmem.c \
+			$(MAIN_FILE) 					\
+			src/drivers/gpio.c 				\
+			src/drivers/mcu_init.c 			\
+			src/drivers/usart.c 			\
+			src/common/ring_buffer.c 		\
+			src/sysmem.c 					\
 			src/syscalls.c  
 
 # ASM sources

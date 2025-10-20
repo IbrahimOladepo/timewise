@@ -6,7 +6,7 @@
             "group": "build",
             "type": "shell",
             "command": "make",
-            "args": ["all", "-j4", "TEST=test_USART_Tx"]
+            "args": ["all", "-j4", "TEST=test_USART_Tx_Interrupt"]
         },
         {
             "label": "Build clean",

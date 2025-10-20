@@ -1,5 +1,5 @@
 /*
- *  mcu_init.h
+ *  usart.h
  *
  *  Created on: October 12, 2025
  *  Author: Ibrahim Oladepo
@@ -123,8 +123,15 @@ void USART_PeriCtrl(USART_TypeDef *pUSARTx, uint8_t EnorDi);
 // // Init and De-init
 void USART_Init(USART_Handler_t *pUSARTHandle);
 void USART_DeInit(USART_TypeDef *pUSARTx);
+void USART_TxInterruptInit(USART_TypeDef *pUSARTx);
+void USART_TxInterruptDeInit(USART_TypeDef *pUSARTx);
 
 // // Data read and write
 void USART_WriteChar_Polling(USART_TypeDef *pUSARTx, char c);
+void USART_WriteChar_Interrupt(USART_TypeDef *pUSARTx, char c);
+void USART_TxStart(USART_TypeDef *pUSARTx);
+
+// Interrupt
+void USART_IRQHandling(USART_TypeDef *pUSARTx);
 
 #endif

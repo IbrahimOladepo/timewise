@@ -4,11 +4,12 @@
             "name": "Linux",
             "includePath": [
                 "${workspaceFolder}/**",
-                "/usr/share/gcc-arm-none-eabi-10.3-2021.10/arm-none-eabi/include/**"
+                "/usr/share/gcc-arm-none-eabi-10.3-2021.10/arm-none-eabi/include/**",
+                "${workspaceFolder}/src/common"
             ],
             "defines": [
                 "USE_HAL_DRIVER",
-		        "STM32F401xE"
+                "STM32F401xE"
             ],
             "compilerPath": "/usr/bin/arm-none-eabi-gcc",
             "intelliSenseMode": "linux-gcc-x64",

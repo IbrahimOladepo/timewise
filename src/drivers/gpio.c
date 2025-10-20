@@ -329,7 +329,7 @@ void GPIO_IRQConfigs(IRQn_Type IRQNumber, uint32_t IRQPriority, uint8_t EnorDi){
 
 /*********************************************************************
  * @fn      		  - GPIO_IRQHandling
- * @brief             - clears EXTI PR (pending register) bit to avoid retriggering of interrupt
+ * @brief             - Clears EXTI PR (pending register) bit to avoid retriggering of interrupt
  * @param[in]         - GPIO pin number
  */
 void GPIO_IRQHandling(GPIO_Pin_Number_t pinNumber){

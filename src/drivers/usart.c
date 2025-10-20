@@ -5,7 +5,13 @@
  *  Author: Ibrahim Oladepo
  */
 
- #include "usart.h"
+#include "usart.h"
+#include "ring_buffer.h"
+
+
+#define USART_BUFFER_SIZE   16
+static uint8_t Buffer[USART_BUFFER_SIZE];
+static Ring_Buffer_t TxBuffer = {.pBuffer = Buffer, .BufferSize = USART_BUFFER_SIZE};
 
 
 /*********************************************************************
@@ -209,6 +215,9 @@ void USART_Init(USART_Handler_t *pUSARTHandle){
     USART_ConfigClkPhasePol(pUSARTHandle);
     USART_ConfigBaudRate(pUSARTHandle);
     USART_ConfigTxRx(pUSARTHandle);
+
+    // Clear TC register which is 1 on boot
+    // pUSARTHandle->pUSARTx->SR &= ~(USART_SR_TC);
 }
 
 
@@ -243,3 +252,120 @@ void USART_WriteChar_Polling(USART_TypeDef *pUSARTx, char c){
         USART_WriteChar_Polling(pUSARTx, '\r');
     }
 }
+
+
+/*********************************************************************
+ * @fn      		  - USART_WriteChar_Interrupt
+ * @brief             - Writes a character to the USARTx peripheral Tx buffer using interrupt
+ * @param[in]         - Pointer to USARTx peripheral base address
+ * @param[in]         - Character to write
+ * @note              - ##
+ */
+void USART_WriteChar_Interrupt(USART_TypeDef *pUSARTx, char c){
+    // Some terminals expect carriage return (\r) 'BEFORE' line-feed (\n) for proper new line
+    if (c == '\n'){
+        USART_WriteChar_Interrupt(pUSARTx, '\r');
+    }
+
+    // Ensure interrupt cannot occur while the following code is running
+    // By disabling and then enabling the interupt after
+    // USART_TxInterruptDeInit(pUSARTx);
+
+    // Check for ongoing transmission
+    const bool TxOngoing = !RingBufferEmpty(&TxBuffer);
+    
+    RingBufferPut(&TxBuffer, c);
+
+    if (!TxOngoing){
+        // USART_TxStart(pUSARTx);
+        // A USART interrupt is generated whenever TXE=1 in the USART_SR register
+        pUSARTx->CR1 |= USART_CR1_TXEIE;
+    }
+
+    // USART_TxInterruptInit(pUSARTx);
+}
+
+
+/*********************************************************************
+ * @fn      		  - USART_TxStart
+ * @brief             - Initializes USART Tx data transmission from ring buffer
+ */
+void USART_TxStart(USART_TypeDef *pUSARTx){
+    if (!RingBufferEmpty(&TxBuffer)){
+        uint8_t c = RingBufferPeek(&TxBuffer);
+        pUSARTx->DR = c;
+    }
+}
+
+
+/*********************************************************************
+ * @fn      		  - USART_InterruptInit
+ * @brief             - Initializes Tx interrupt for a USART peripheral
+ * @param[in]         - Pointer to USARTx peripheral base address
+ */
+void USART_TxInterruptInit(USART_TypeDef *pUSARTx){
+    // A USART interrupt is generated whenever TC=1 in the USART_SR register
+    pUSARTx->CR1 |= USART_CR1_TCIE;
+
+    // A USART interrupt is generated whenever TXE=1 in the USART_SR register
+    pUSARTx->CR1 |= USART_CR1_TXEIE;
+
+    // TODO IN APP: Need to enable IRQ and set priority
+}
+
+
+/*********************************************************************
+ * @fn      		  - USART_TxInterruptDeInit
+ * @brief             - De-initializes Tx interrupt for a USART peripheral
+ * @param[in]         - Pointer to USARTx peripheral base address
+ */
+void USART_TxInterruptDeInit(USART_TypeDef *pUSARTx){
+    pUSARTx->CR1 &= ~(USART_CR1_TCIE);
+    pUSARTx->CR1 &= ~(USART_CR1_TXEIE);
+}
+
+
+/*********************************************************************
+ * @fn      		  - USART_IRQHandling
+ * @brief             - Handles USARTx interrupt requests
+ * @param[in]         - Pointer to USARTx peripheral base address
+ * @note              - ##
+ */
+void USART_IRQHandling(USART_TypeDef *pUSARTx){
+    // TC induced interrupt handling
+    if ((pUSARTx->SR & USART_SR_TC) && (pUSARTx->CR1 & USART_CR1_TCIE)){
+        pUSARTx->SR &= ~(USART_SR_TC);
+    }
+}
+
+
+void USART1_IRQHandler(void){
+    // Check if the interrupt was triggered by TXE (Transmit Data Register Empty)
+    if (USART1->SR & USART_SR_TXE){
+        // if (RingBufferEmpty(&TxBuffer)){
+        //     while(1);   // TODO
+        // }
+
+        // // Remove the transmitted data byte from the buffer
+        // RingBufferGet(&TxBuffer);
+
+        // // Clear the interrupt to avoid accidental re-triggering
+        // USART_IRQHandling(USART1);
+
+        // if (!RingBufferEmpty(&TxBuffer)){
+        //     USART_TxStart(USART1);
+        // }
+        
+        uint8_t data = RingBufferGet(&TxBuffer);
+
+        if (data){
+            // Data available; buffer not empty
+            USART1->DR = data;
+        }
+        else{
+            // Buffer is empty. Disable interrupt for now
+            USART1->CR1 &= ~(USART_CR1_TXEIE);
+        }
+    }
+}
+
