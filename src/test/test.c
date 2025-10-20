@@ -110,6 +110,10 @@ void USART1_Init(void){
 
     // Activate USART1 peripheral
     USART_PeriCtrl(USART1, ENABLE);
+
+    uint32_t temp = (uint32_t) USART1->SR;
+    // USART1->DR |= 'X';
+    // USART1->SR &= ~(USART_SR_TC);
 }
 
 
@@ -194,6 +198,63 @@ void test_USART_Tx(void){
 }
 
 
+void test_USART_Tx_Interrupt(void){
+    MCU_Init();
+    GPIO_MCO1Init();
+    GPIO_MCO2Init();
+    GPIO_LEDPinInit();
+    USART1_Init();
+
+    // Configure interrupt on USART1
+    GPIO_IRQConfigs(USART1_IRQn, 0, ENABLE);
+
+    char counter = 0;
+    
+
+    while (1){
+        USART_WriteChar_Interrupt(USART1, 'I');
+        USART_WriteChar_Interrupt(USART1, 'B');
+        USART_WriteChar_Interrupt(USART1, 'T');
+        USART_WriteChar_Interrupt(USART1, 'E');
+        USART_WriteChar_Interrupt(USART1, 'C');
+        USART_WriteChar_Interrupt(USART1, 'H');
+        USART_WriteChar_Interrupt(USART1, 'N');
+        USART_WriteChar_Interrupt(USART1, 'O');
+        USART_WriteChar_Interrupt(USART1, 'L');
+        USART_WriteChar_Interrupt(USART1, 'O');
+        USART_WriteChar_Interrupt(USART1, 'G');
+        USART_WriteChar_Interrupt(USART1, 'Y');
+        USART_WriteChar_Interrupt(USART1, ' ');
+        USART_WriteChar_Interrupt(USART1, counter);
+        USART_WriteChar_Interrupt(USART1, '\n');
+        delay();
+        delay();
+        delay();
+        delay();
+
+        GPIO_WriteToOutputPin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
+        delay();
+
+        GPIO_WriteToOutputPin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
+        delay();
+
+        GPIO_WriteToOutputPin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
+        delay();
+
+        GPIO_WriteToOutputPin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
+        delay();
+        delay();
+        delay();
+
+        counter++;
+
+        if (counter >= 255){
+            counter = 0;
+        }
+    }
+}
+
+
 int main(void){
 
     TEST();
@@ -210,4 +271,3 @@ void EXTI15_10_IRQHandler(void){
     GPIO_IRQHandling(GPIO_PIN_13);
     GPIO_ToggleOutputPin(GPIOA, GPIO_PIN_5);
 }
-

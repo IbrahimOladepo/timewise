@@ -9,7 +9,7 @@
             "name": "STlink launch",
             "cwd": "${workspaceRoot}",
             // "executable": "${workspaceRoot}/build/timewise.elf",
-            "executable": "${workspaceRoot}/build/test_USART_Tx.elf",
+            "executable": "${workspaceRoot}/build/test_USART_Tx_Interrupt.elf",
             "request": "launch",
             "type": "cortex-debug",
             "servertype": "stutil",
