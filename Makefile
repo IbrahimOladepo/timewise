@@ -43,6 +43,7 @@ C_SOURCES =	\
 			src/drivers/gpio.c 				\
 			src/drivers/mcu_init.c 			\
 			src/drivers/usart.c 			\
+			src/drivers/i2c.c 				\
 			src/common/ring_buffer.c 		\
 			src/sysmem.c 					\
 			src/syscalls.c  

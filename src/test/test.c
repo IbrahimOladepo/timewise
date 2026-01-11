@@ -9,6 +9,7 @@
 #include "mcu_init.h"
 #include "gpio.h"
 #include "usart.h"
+#include "i2c.h"
 
 
 void delay(void){
@@ -63,6 +64,29 @@ void GPIO_MCO1Init(void){
 }
 
 
+void GPIO_I2C1_Init(void){
+    // Initialize GPIO for I2C1 (PB6: SCL, PB7: SDA)
+    GPIO_Handler_t GPIOI2C;
+    GPIOI2C.pGPIOx = GPIOB;
+    GPIOI2C.GPIO_PinConfig.GPIO_PinMode = GPIO_MODE_ALTFN;
+    GPIOI2C.GPIO_PinConfig.GPIO_PinOPType = GPIO_OP_TYPE_OD; // GPIO_OP_TYPE_PP; // Open-drain for I2C
+    GPIOI2C.GPIO_PinConfig.GPIO_PinPuPdControl = GPIO_NO_PUPD;   // Pull-up for I2C
+    GPIOI2C.GPIO_PinConfig.GPIO_PinSpeed = GPIO_SPEED_HIGH;
+
+    // GPIOB->ODR |= (1 << 8) | (1 << 9);  // Set PB8 and PB9 high
+
+    // I2C1 SCL (PB6)
+    GPIOI2C.GPIO_PinConfig.GPIO_PinAltFunMode = GPIO_AF_4;      // AF4 for I2C1 and I2C2
+    GPIOI2C.GPIO_PinConfig.GPIO_PinNumber = GPIO_PIN_8;        // GPIO_PIN_6 8 10
+    GPIO_Init(&GPIOI2C);
+
+    // I2C1 SDA (PB7)
+    GPIOI2C.GPIO_PinConfig.GPIO_PinAltFunMode = GPIO_AF_4;      // AF4 for I2C1 | AF9 for I2C2
+    GPIOI2C.GPIO_PinConfig.GPIO_PinNumber = GPIO_PIN_9;         // GPIO_PIN_7 9 3
+    GPIO_Init(&GPIOI2C);
+}
+
+
 void GPIO_MCO2Init(void){
     // MCU pin connected to HSI
     GPIO_Handler_t GPIOMCO;
@@ -77,6 +101,27 @@ void GPIO_MCO2Init(void){
 
 	// Initialize GPIO(s)
 	GPIO_Init(&GPIOMCO);
+}
+
+
+void I2C1_Init(void){
+    // Initialize I2C1 peripheral
+    I2C_Handler_t I2COne;
+    I2COne.pI2Cx = I2C1;
+    I2COne.I2C_PinConfig.I2C_Speed = I2C_SPEED_100KHZ;
+    I2COne.I2C_PinConfig.I2C_DutyCycle = I2C_DUTY_2;
+    I2COne.I2C_PinConfig.I2C_AddressingMode = I2C_ADDR_7BIT;
+    I2COne.I2C_PinConfig.I2C_ACKCtrl = I2C_ACK_ENABLE;
+    I2COne.I2C_PinConfig.I2C_StretchMode = I2C_STRETCH_ENABLE;
+    I2COne.I2C_PinConfig.I2C_OwnAddress1 = 0;       // Example slave address
+    I2COne.I2C_PinConfig.I2C_GeneralCall = 0;       // Disable general call
+    I2COne.I2C_PinConfig.I2C_DualAddress = 0;       // Disable dual address
+    I2COne.I2C_PinConfig.I2C_OwnAddress2 = 0;       // Not used when dual address disabled
+    
+    I2C_Init(&I2COne);
+    
+    // Enable I2C1 peripheral
+    I2C_PeripheralControl(I2C1, ENABLE);
 }
 
 
@@ -141,6 +186,10 @@ void test_GPIO_LEDOnOff(void){
         delay();
 
         GPIO_WriteToOutputPin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
+        delay();
+        delay();
+        delay();
+        delay();
         delay();
     }
 }
@@ -251,6 +300,111 @@ void test_USART_Tx_Interrupt(void){
         if (counter >= 255){
             counter = 0;
         }
+    }
+}
+
+
+void test_I2C_Basic(void){
+    MCU_Init();
+    GPIO_LEDPinInit();
+    GPIO_I2C1_Init();
+    I2C1_Init();
+    
+    // uint8_t test_data[] = {0x01, 0x02, 0x03, 0x04};
+    // uint8_t rx_buffer[4];
+
+    // IMU: MPU6050 addresses
+    uint8_t slave_addr_mpu = 0x68;      // Example EEPROM address | 0x50
+    uint8_t reg_addr_mpu = 0x75;
+
+    // VL6160 addresses
+    uint8_t slave_addr_vl = 0x29;
+    uint16_t reg_addr_vl = 0x0000;     // Identification Model ID
+
+    uint8_t read_data = 0;
+
+    uint8_t counter = 0;
+    
+    while(1){
+        // Test I2C write
+        // I2C_Status_t status = I2C_MasterSendData(I2C1, test_data, 4, slave_addr);
+
+        // Read data from slave
+        // I2C_Status_t status = I2C_MasterReceiveData(I2C1, read_data, 1, slave_addr);
+
+        // I2C_Status_t status = I2C_MemRead(I2C2, slave_addr_vl, reg_addr_vl, 1, read_data, 1);
+        
+        I2C_Status_t status = I2C_MemRead_16BitMem(I2C1, slave_addr_vl, reg_addr_vl, 1, &read_data, 1);
+
+        if(status == I2C_STATUS_OK){
+            // Success - blink LED fast
+            GPIO_WriteToOutputPin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
+            delay();
+            GPIO_WriteToOutputPin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
+            delay();
+        } else {
+            // Error - blink LED slow
+            GPIO_WriteToOutputPin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
+            delay();
+            delay();
+            delay();
+            GPIO_WriteToOutputPin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
+            delay();
+            delay();
+            delay();
+        }
+        
+        // delay();
+        // delay();
+
+        read_data = 0;
+    }
+}
+
+
+void test_I2C_ReadWrite(void){
+    MCU_Init();
+    GPIO_LEDPinInit();
+    GPIO_I2C1_Init();
+    I2C1_Init();
+    
+    uint8_t write_data[] = {0x00, 0x55}; // Address 0x00, data 0x55
+    uint8_t read_data[2];
+    uint8_t slave_addr = 0x50; // Example EEPROM address
+    
+    while(1){
+        // Write data to slave
+        I2C_Status_t write_status = I2C_MasterSendData(I2C1, write_data, 2, slave_addr);
+        
+        delay(); // Small delay between operations
+        
+        // Read data from slave
+        I2C_Status_t read_status = I2C_MasterReceiveData(I2C1, read_data, 1, slave_addr);
+        
+        if(write_status == I2C_STATUS_OK && read_status == I2C_STATUS_OK){
+            // Success - double blink
+            GPIO_WriteToOutputPin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
+            delay();
+            GPIO_WriteToOutputPin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
+            delay();
+            GPIO_WriteToOutputPin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
+            delay();
+            GPIO_WriteToOutputPin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
+            delay();
+        } else {
+            // Error - long blink
+            GPIO_WriteToOutputPin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
+            delay();
+            delay();
+            delay();
+            delay();
+            GPIO_WriteToOutputPin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
+            delay();
+        }
+        
+        delay();
+        delay();
+        delay();
     }
 }
 

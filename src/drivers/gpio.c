@@ -150,7 +150,7 @@ void GPIO_ConfigPinPullMode(GPIO_Handler_t *pGPIOHandle){
  */
 void GPIO_ConfigOutputType(GPIO_Handler_t *pGPIOHandle){
     // CLEAR first, then SET
-    pGPIOHandle->pGPIOx->OTYPER &= ~(0b11 << (pGPIOHandle->GPIO_PinConfig.GPIO_PinNumber));
+    pGPIOHandle->pGPIOx->OTYPER &= ~(0b1 << (pGPIOHandle->GPIO_PinConfig.GPIO_PinNumber));
     pGPIOHandle->pGPIOx->OTYPER |= (pGPIOHandle->GPIO_PinConfig.GPIO_PinOPType << (pGPIOHandle->GPIO_PinConfig.GPIO_PinNumber));
 }
 

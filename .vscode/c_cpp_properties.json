@@ -5,7 +5,12 @@
             "includePath": [
                 "${workspaceFolder}/**",
                 "/usr/share/gcc-arm-none-eabi-10.3-2021.10/arm-none-eabi/include/**",
-                "${workspaceFolder}/src/common"
+                "${workspaceFolder}/src/common",
+                "${workspaceFolder}/src/drivers",
+                "${workspaceFolder}/src/app",
+                "${workspaceFolder}/src/test",
+                "${workspaceFolder}/src/drivers/CMSIS/Include",
+                "${workspaceFolder}/src/drivers/CMSIS/Device/ST/STM32F4xx/Include"
             ],
             "defines": [
                 "USE_HAL_DRIVER",
